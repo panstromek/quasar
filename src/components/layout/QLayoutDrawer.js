@@ -29,6 +29,10 @@ export default {
       default: 'left',
       validator: v => ['left', 'right'].includes(v)
     },
+    mini: {
+      type: Boolean,
+      default: null
+    },
     breakpoint: {
       type: Number,
       default: 992
@@ -132,6 +136,24 @@ export default {
     rightSide () {
       return this.side === 'right'
     },
+    isMini () {
+      return this.mini && !this.mobileView
+    },
+    on () {
+      if (this.mini === null || this.mobileView) {
+        return
+      }
+      return {
+        mouseenter: () => {
+          this.$emit('update:mini', false)
+          this.layout.__animate()
+        },
+        mouseleave: () => {
+          this.$emit('update:mini', true)
+          this.layout.__animate()
+        }
+      }
+    },
     offset () {
       return this.showing && !this.mobileOpened && !this.overlay
         ? this.size
@@ -181,6 +203,7 @@ export default {
     aboveClass () {
       return {
         'fixed': this.fixed || !this.onLayout,
+        'q-layout-drawer-mini': this.isMini,
         'q-layout-drawer-delimiter': this.fixed && this.showing,
         'top-padding': this.headerSlot
       }
@@ -253,6 +276,7 @@ export default {
         style: this.computedStyle,
         attrs: this.$attrs,
         listeners: this.$listeners,
+        on: this.on,
         directives: this.mobileView && !this.noSwipeClose ? [{
           name: 'touch-pan',
           modifiers: { horizontal: true },
@@ -263,7 +287,9 @@ export default {
           props: { debounce: 0 },
           on: { resize: this.__onResize }
         }),
-        this.$slots.default
+        this.isMini && this.$slots.mini
+          ? this.$slots.mini
+          : this.$slots.default
       ])
     ]))
   },

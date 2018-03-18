@@ -70,6 +70,8 @@
     <script>
       Quasar.i18n.set(Quasar.i18n.es)
 
+      Quasar.plugins.Notify.create('start')
+
       new Vue({
         el: '#q-app',
         data: function () {
@@ -82,6 +84,9 @@
           launch: function (url) {
             Quasar.utils.openURL(url)
           }
+        },
+        created () {
+          this.$q.notify('created')
         }
       })
     </script>
